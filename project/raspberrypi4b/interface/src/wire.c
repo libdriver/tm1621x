@@ -1,0 +1,410 @@
+/**
+ * Copyright (c) 2015 - present LibDriver All rights reserved
+ * 
+ * The MIT License (MIT)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE. 
+ *
+ * @file      wire.c
+ * @brief     wire source file
+ * @version   1.0.0
+ * @author    Shifeng Li
+ * @date      2022-11-11
+ *
+ * <h3>history</h3>
+ * <table>
+ * <tr><th>Date        <th>Version  <th>Author      <th>Description
+ * <tr><td>2022/11/11  <td>1.0      <td>Shifeng Li  <td>first upload
+ * </table>
+ */
+
+#include "wire.h"
+#include <gpiod.h>
+
+/**
+ * @brief gpio device name definition
+ */
+#define GPIO_DEVICE_NAME "/dev/gpiochip0"        /**< gpio device name */
+
+/**
+ * @brief gpio device line definition
+ */
+#define GPIO_DEVICE_LINE 17                      /**< gpio device line */
+#define GPIO_DEVICE_WR_LINE 27                   /**< gpio device clock line */
+#define GPIO_DEVICE_RD_LINE 5                    /**< gpio device clock line */
+#define GPIO_DEVICE_CS_LINE 22                   /**< gpio device cs line */
+
+/**
+ * @brief global var definition
+ */
+static struct gpiod_chip *gs_chip;               /**< gpio chip handle */
+static struct gpiod_line *gs_line;               /**< gpio line handle */
+static struct gpiod_chip *gs_wr_chip;            /**< gpio wr chip handle */
+static struct gpiod_line *gs_wr_line;            /**< gpio wr line handle */
+static struct gpiod_chip *gs_rd_chip;            /**< gpio rd chip handle */
+static struct gpiod_line *gs_rd_line;            /**< gpio rd line handle */
+static struct gpiod_chip *gs_cs_chip;            /**< gpio cs chip handle */
+static struct gpiod_line *gs_cs_line;            /**< gpio cs line handle */
+static volatile uint8_t gs_read_write_flag;      /**< read write flag */
+
+/**
+ * @brief  wire bus init
+ * @return status code
+ *         - 0 success
+ *         - 1 init failed
+ * @note   none
+ */
+uint8_t wire_init(void)
+{
+    /* open the gpio group */
+    gs_chip = gpiod_chip_open(GPIO_DEVICE_NAME);
+    if (gs_chip == NULL)
+    {
+        perror("gpio: open failed.\n");
+        
+        return 1;
+    }
+    
+    /* get the gpio line */
+    gs_line = gpiod_chip_get_line(gs_chip, GPIO_DEVICE_LINE);
+    if (gs_line == NULL) 
+    {
+        perror("gpio: get line failed.\n");
+        gpiod_chip_close(gs_chip);
+        
+        return 1;
+    }
+    
+    /* set the flag */
+    gs_read_write_flag = 2;
+    
+    /* set high */
+    return wire_write(1);
+}
+
+/**
+ * @brief  wire bus deint
+ * @return status code
+ *         - 0 success
+ * @note   none
+ */
+uint8_t wire_deinit(void)
+{
+    /* close the chip */
+    gpiod_chip_close(gs_chip);
+    
+    return 0;
+}
+
+/**
+ * @brief      wire bus read data
+ * @param[out] *value pointer to a data buffer
+ * @return     status code
+ *             - 0 success
+ *             - 1 read failed
+ * @note       none
+ */
+uint8_t wire_read(uint8_t *value)
+{
+    int res;
+    
+    /* check the flag */
+    if (gs_read_write_flag != 0)
+    {
+        /* check requested */
+        if (gpiod_line_is_requested(gs_line) != 0) 
+        {
+            /* release */
+            gpiod_line_release(gs_line);
+        }
+        
+        /* set input */
+        if (gpiod_line_request_input(gs_line, "gpio_input") != 0) 
+        {
+            return 1;
+        }
+        
+        /* flag read */
+        gs_read_write_flag = 0;
+    }
+    
+    /* read the value */
+    res = gpiod_line_get_value(gs_line);
+    if (res < 0)
+    {
+        return 1;
+    }
+    
+    /* set the value */
+    *value = (uint8_t)(res);
+    
+    return 0;
+}
+
+/**
+ * @brief     wire bus write data
+ * @param[in] value write data
+ * @return    status code
+ *            - 0 success
+ *             - 1 write failed
+ * @note      none
+ */
+uint8_t wire_write(uint8_t value)
+{
+    /* check the flag */
+    if (gs_read_write_flag != 1)
+    {
+        /* check requested */
+        if (gpiod_line_is_requested(gs_line) != 0) 
+        {
+            /* release */
+            gpiod_line_release(gs_line);
+        }
+        
+        /* set output */
+        if (gpiod_line_request_output(gs_line, "gpio_output", GPIOD_LINE_ACTIVE_STATE_HIGH) != 0)
+        {
+            return 1;
+        }
+        
+        /* flag write */
+        gs_read_write_flag = 1;
+    }
+    
+    /* set the value */
+    if (gpiod_line_set_value(gs_line, value) != 0)
+    {
+        return 1;
+    }
+    
+    return 0;
+}
+
+/**
+ * @brief  wire wr init
+ * @return status code
+ *         - 0 success
+ *         - 1 init failed
+ * @note   none
+ */
+uint8_t wire_wr_init(void)
+{
+    /* open the device */
+    gs_wr_chip = gpiod_chip_open(GPIO_DEVICE_NAME);
+    if (gs_wr_chip == NULL)
+    {
+        perror("gpio: open failed.\n");
+        
+        return 1;
+    }
+
+    /* get the line */
+    gs_wr_line = gpiod_chip_get_line(gs_wr_chip, GPIO_DEVICE_WR_LINE);
+    if (gs_wr_line == NULL) 
+    {
+        perror("gpio: get line failed.\n");
+        gpiod_chip_close(gs_wr_chip);
+        
+        return 1;
+    }
+
+    /* set active high */
+    if (gpiod_line_request_output(gs_wr_line, "gpio_output", GPIOD_LINE_ACTIVE_STATE_HIGH))
+    {
+        return 1;
+    }
+
+    /* set wr high */
+    return wire_wr_write(1);
+}
+
+/**
+ * @brief  wire wr deint
+ * @return status code
+ *         - 0 success
+ * @note   none
+ */
+uint8_t wire_wr_deinit(void)
+{
+    /* close the gpio */
+    gpiod_chip_close(gs_wr_chip);
+    
+    return 0;
+}
+
+/**
+ * @brief     wire bus wr data
+ * @param[in] value write data
+ * @return    status code
+ *            - 0 success
+ *            - 1 write failed
+ * @note      none
+ */
+uint8_t wire_wr_write(uint8_t value)
+{
+    /* set the value */
+    if (gpiod_line_set_value(gs_wr_line, value))
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+/**
+ * @brief  wire rd init
+ * @return status code
+ *         - 0 success
+ *         - 1 init failed
+ * @note   none
+ */
+uint8_t wire_rd_init(void)
+{
+    /* open the device */
+    gs_rd_chip = gpiod_chip_open(GPIO_DEVICE_NAME);
+    if (gs_rd_chip == NULL)
+    {
+        perror("gpio: open failed.\n");
+        
+        return 1;
+    }
+
+    /* get the line */
+    gs_rd_line = gpiod_chip_get_line(gs_rd_chip, GPIO_DEVICE_RD_LINE);
+    if (gs_rd_line == NULL) 
+    {
+        perror("gpio: get line failed.\n");
+        gpiod_chip_close(gs_rd_chip);
+        
+        return 1;
+    }
+
+    /* set active high */
+    if (gpiod_line_request_output(gs_rd_line, "gpio_output", GPIOD_LINE_ACTIVE_STATE_HIGH))
+    {
+        return 1;
+    }
+
+    /* set rd high */
+    return wire_rd_write(1);
+}
+
+/**
+ * @brief  wire rd deint
+ * @return status code
+ *         - 0 success
+ * @note   none
+ */
+uint8_t wire_rd_deinit(void)
+{
+    /* close the gpio */
+    gpiod_chip_close(gs_rd_chip);
+    
+    return 0;
+}
+
+/**
+ * @brief     wire bus rd data
+ * @param[in] value write data
+ * @return    status code
+ *            - 0 success
+ *            - 1 write failed
+ * @note      none
+ */
+uint8_t wire_rd_write(uint8_t value)
+{
+    /* set the value */
+    if (gpiod_line_set_value(gs_rd_line, value))
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+/**
+ * @brief  wire bus cs init
+ * @return status code
+ *         - 0 success
+ *         - 1 failed 
+ * @note   none
+ */
+uint8_t wire_cs_init(void)
+{
+    /* open the device */
+    gs_cs_chip = gpiod_chip_open(GPIO_DEVICE_NAME);
+    if (gs_cs_chip == NULL)
+    {
+        perror("gpio: open failed.\n");
+        
+        return 1;
+    }
+
+    /* get the line */
+    gs_cs_line = gpiod_chip_get_line(gs_cs_chip, GPIO_DEVICE_CS_LINE);
+    if (gs_cs_line == NULL) 
+    {
+        perror("gpio: get line failed.\n");
+        gpiod_chip_close(gs_cs_chip);
+        
+        return 1;
+    }
+
+    /* set active high */
+    if (gpiod_line_request_output(gs_cs_line, "gpio_output", GPIOD_LINE_ACTIVE_STATE_HIGH))
+    {
+        return 1;
+    }
+
+    /* set cs high */
+    return wire_cs_write(1);
+}
+
+/**
+ * @brief  wire bus cs deint
+ * @return status code
+ *         - 0 success
+ * @note   none
+ */
+uint8_t wire_cs_deinit(void)
+{
+    /* close the gpio */
+    gpiod_chip_close(gs_cs_chip);
+    
+    return 0;
+}
+
+/**
+ * @brief     wire bus write data
+ * @param[in] value write data
+ * @return    status code
+ *            - 0 success
+ *            - 1 failed
+ * @note      none
+ */
+uint8_t wire_cs_write(uint8_t value)
+{
+    /* set the value */
+    if (gpiod_line_set_value(gs_cs_line, value))
+    {
+        return 1;
+    }
+
+    return 0;
+}
