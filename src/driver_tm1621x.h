@@ -99,7 +99,7 @@ typedef enum
 {
     TM1621X_CLOCK_XTAL_32K = 0x00,        /**< xtal 32k */
     TM1621X_CLOCK_RC_256K  = 0x01,        /**< rc 256k */
-    TM1621X_CLOCK_EXT_256K = 0x02,        /**< ext 32k */
+    TM1621X_CLOCK_EXT_256K = 0x02,        /**< ext 256k */
 } tm1621x_clock_t;
 
 /**
