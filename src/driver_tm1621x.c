@@ -295,6 +295,63 @@ static uint8_t a_tm1621x_write_ram(tm1621x_handle_t *handle, uint8_t addr, uint8
 }
 
 /**
+ * @brief      read ram
+ * @param[in]  *handle pointer to a tm1621x handle structure
+ * @param[in]  addr address
+ * @param[out] *data pointer to an output data buffer
+ * @param[in]  len output data length
+ * @return     status code
+ *             - 0 success
+ *             - 1 read failed
+ * @note       none
+ */
+static uint8_t a_tm1621x_read_ram(tm1621x_handle_t *handle, uint8_t addr, uint8_t *data, uint8_t len)
+{
+    uint8_t res;
+    uint8_t i;
+    
+    res = handle->cs_gpio_write(0);                                               /* set low */
+    if (res != 0)                                                                 /* check the result */
+    {
+        handle->debug_print("tm1621x: cs gpio write failed.\n");                  /* cs gpio write failed */
+        
+        return 1;                                                                 /* return error */
+    }
+    handle->delay_us(TM1621X_COMMAND_DATA_DELAY);                                 /* delay */
+    res = a_tm1621x_write_bits(handle, (uint32_t)(0x06), 3);                      /* write bits */
+    if (res != 0)                                                                 /* check the result */
+    {
+        return 1;                                                                 /* return error */
+    }
+    res = a_tm1621x_write_bits(handle, (uint32_t)(addr & 0x3F), 6);               /* write bits */
+    if (res != 0)                                                                 /* check the result */
+    {
+        return 1;                                                                 /* return error */
+    }
+    
+    for (i = 0; i < len; i++)                                                     /* loop */
+    {
+        uint32_t output = 0;
+        
+        res = a_tm1621x_read_bits(handle, &output, 4);                            /* read bits */
+        if (res != 0)                                                             /* check the result */
+        {
+            return 1;                                                             /* return error */
+        }
+        data[i] = (uint8_t)(output & 0xF);                                        /* set data */
+    }
+    res = handle->cs_gpio_write(1);                                               /* set high */
+    if (res != 0)                                                                 /* check the result */
+    {
+        handle->debug_print("tm1621x: cs gpio write failed.\n");                  /* cs gpio write failed */
+        
+        return 1;                                                                 /* return error */
+    }
+    
+    return 0;                                                                     /* success return 0 */
+}
+
+/**
  * @brief     read modify write
  * @param[in] *handle pointer to a tm1621x handle structure
  * @param[in] addr address
@@ -1522,6 +1579,41 @@ uint8_t tm1621x_set_data(tm1621x_handle_t *handle, uint8_t addr, uint8_t *data, 
     }
     
     return 0;                                                  /* success return 0 */
+}
+
+/**
+ * @brief      get data
+ * @param[in]  *handle pointer to a tm1621x handle structure
+ * @param[in]  addr address
+ * @param[out] *data pointer to an output data buffer
+ * @param[in]  len output data length
+ * @return     status code
+ *             - 0 success
+ *             - 1 read failed
+ *             - 2 handle is NULL
+ *             - 3 handle is not initialized
+ * @note       none
+ */
+uint8_t tm1621x_get_data(tm1621x_handle_t *handle, uint8_t addr, uint8_t *data, uint8_t len)
+{
+    uint8_t res;
+    
+    if (handle == NULL)                                       /* check handle */
+    {
+        return 2;                                             /* return error */
+    }
+    if (handle->inited != 1)                                  /* check handle initialization */
+    {
+        return 3;                                             /* return error */
+    }
+    
+    res = a_tm1621x_read_ram(handle, addr, data, len);        /* read */
+    if (res != 0)                                             /* check error */
+    {
+        return 1;                                             /* return error */
+    }
+    
+    return 0;                                                 /* success return 0 */
 }
 
 /**

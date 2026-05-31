@@ -109,12 +109,66 @@ Functions</h2></td></tr>
 <tr class="memdesc:ga4ac0639bde58bf49bd102ac38b2cad1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">set command  <br /></td></tr>
 <tr class="memitem:ga4e24c057cc49e9df0f4aa4c194aaa190" id="r_ga4e24c057cc49e9df0f4aa4c194aaa190"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ga4e24c057cc49e9df0f4aa4c194aaa190">tm1621x_set_data</a> (<a class="el" href="group__tm1621x__basic__driver.html#ga427f1746c4a50022f9863b9e1f17d1a0">tm1621x_handle_t</a> *handle, uint8_t addr, uint8_t *data, uint8_t len)</td></tr>
 <tr class="memdesc:ga4e24c057cc49e9df0f4aa4c194aaa190"><td class="mdescLeft">&#160;</td><td class="mdescRight">set data  <br /></td></tr>
+<tr class="memitem:gafa10504e7f173d3daa790fa84ebcf7aa" id="r_gafa10504e7f173d3daa790fa84ebcf7aa"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gafa10504e7f173d3daa790fa84ebcf7aa">tm1621x_get_data</a> (<a class="el" href="group__tm1621x__basic__driver.html#ga427f1746c4a50022f9863b9e1f17d1a0">tm1621x_handle_t</a> *handle, uint8_t addr, uint8_t *data, uint8_t len)</td></tr>
+<tr class="memdesc:gafa10504e7f173d3daa790fa84ebcf7aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">get data  <br /></td></tr>
 <tr class="memitem:gacf9bdf4fcde4339f002461b1cbe97f6e" id="r_gacf9bdf4fcde4339f002461b1cbe97f6e"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#gacf9bdf4fcde4339f002461b1cbe97f6e">tm1621x_read_modify_write</a> (<a class="el" href="group__tm1621x__basic__driver.html#ga427f1746c4a50022f9863b9e1f17d1a0">tm1621x_handle_t</a> *handle, uint8_t addr, void(*and_or)(uint8_t addr, uint8_t input, uint8_t *output), uint8_t len)</td></tr>
 <tr class="memdesc:gacf9bdf4fcde4339f002461b1cbe97f6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">read modify write  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <p>tm1621x extern driver modules </p>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="gafa10504e7f173d3daa790fa84ebcf7aa" name="gafa10504e7f173d3daa790fa84ebcf7aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gafa10504e7f173d3daa790fa84ebcf7aa">&#9670;&#160;</a></span>tm1621x_get_data()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t tm1621x_get_data </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__tm1621x__basic__driver.html#ga427f1746c4a50022f9863b9e1f17d1a0">tm1621x_handle_t</a> *</td>          <td class="paramname"><span class="paramname"><em>handle</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>addr</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *</td>          <td class="paramname"><span class="paramname"><em>data</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t</td>          <td class="paramname"><span class="paramname"><em>len</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>get data </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">*handle</td><td>pointer to a tm1621x handle structure </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">addr</td><td>address </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">*data</td><td>pointer to an output data buffer </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">len</td><td>output data length </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>status code<ul>
+<li>0 success</li>
+<li>1 read failed</li>
+<li>2 handle is NULL</li>
+<li>3 handle is not initialized </li>
+</ul>
+</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>none </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="driver__tm1621x_8c_source.html#l01597">1597</a> of file <a class="el" href="driver__tm1621x_8c_source.html">driver_tm1621x.c</a>.</p>
+
+</div>
+</div>
 <a id="gacf9bdf4fcde4339f002461b1cbe97f6e" name="gacf9bdf4fcde4339f002461b1cbe97f6e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gacf9bdf4fcde4339f002461b1cbe97f6e">&#9670;&#160;</a></span>tm1621x_read_modify_write()</h2>
 
@@ -163,7 +217,7 @@ Functions</h2></td></tr>
 </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>none </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="driver__tm1621x_8c_source.html#l01540">1540</a> of file <a class="el" href="driver__tm1621x_8c_source.html">driver_tm1621x.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="driver__tm1621x_8c_source.html#l01632">1632</a> of file <a class="el" href="driver__tm1621x_8c_source.html">driver_tm1621x.c</a>.</p>
 
 </div>
 </div>
@@ -203,7 +257,7 @@ Functions</h2></td></tr>
 </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>none </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="driver__tm1621x_8c_source.html#l01470">1470</a> of file <a class="el" href="driver__tm1621x_8c_source.html">driver_tm1621x.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="driver__tm1621x_8c_source.html#l01527">1527</a> of file <a class="el" href="driver__tm1621x_8c_source.html">driver_tm1621x.c</a>.</p>
 
 </div>
 </div>
@@ -255,7 +309,7 @@ Functions</h2></td></tr>
 </dd></dl>
 <dl class="section note"><dt>Note</dt><dd>data width is 4 bits and data &lt;= 0x0F </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="driver__tm1621x_8c_source.html#l01505">1505</a> of file <a class="el" href="driver__tm1621x_8c_source.html">driver_tm1621x.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="driver__tm1621x_8c_source.html#l01562">1562</a> of file <a class="el" href="driver__tm1621x_8c_source.html">driver_tm1621x.c</a>.</p>
 
 </div>
 </div>
