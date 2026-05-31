@@ -62,6 +62,7 @@ var driver__tm1621x_8h =
     [ "tm1621x_clear_timer", "group__tm1621x__basic__driver.html#gaca725016ba87ec9137c9b6455930b86b", null ],
     [ "tm1621x_clear_watchdog", "group__tm1621x__basic__driver.html#ga622984b8c8873765f833237219cc3120", null ],
     [ "tm1621x_deinit", "group__tm1621x__basic__driver.html#ga016b9be5c68cfe6df9643016134fcabc", null ],
+    [ "tm1621x_get_data", "group__tm1621x__extern__driver.html#gafa10504e7f173d3daa790fa84ebcf7aa", null ],
     [ "tm1621x_get_type", "group__tm1621x__basic__driver.html#ga7aa98ff26833f2ea545bd8db646604d9", null ],
     [ "tm1621x_info", "group__tm1621x__basic__driver.html#ga8e71f8893199f070b62b6bc951c31793", null ],
     [ "tm1621x_init", "group__tm1621x__basic__driver.html#ga5615cd81d5d5ef18fcdc17486d78ef51", null ],

@@ -648,6 +648,21 @@ uint8_t tm1621x_set_command(tm1621x_handle_t *handle, uint16_t cmd);
 uint8_t tm1621x_set_data(tm1621x_handle_t *handle, uint8_t addr, uint8_t *data, uint8_t len);
 
 /**
+ * @brief      get data
+ * @param[in]  *handle pointer to a tm1621x handle structure
+ * @param[in]  addr address
+ * @param[out] *data pointer to an output data buffer
+ * @param[in]  len output data length
+ * @return     status code
+ *             - 0 success
+ *             - 1 read failed
+ *             - 2 handle is NULL
+ *             - 3 handle is not initialized
+ * @note       none
+ */
+uint8_t tm1621x_get_data(tm1621x_handle_t *handle, uint8_t addr, uint8_t *data, uint8_t len);
+
+/**
  * @brief     read modify write
  * @param[in] *handle pointer to a tm1621x handle structure
  * @param[in] addr address
